@@ -1,0 +1,49 @@
+  <style>
+    body {
+      font-family: Inter, sans-serif;
+    }
+    .color-box {
+      width: 50px;
+      height: 50px;
+      display: inline-block;
+    }
+  </style>
+
+  <h1>Color Palette Generator</h1>
+  <input id="color-input" type="text" class="input__field" placeholder="Enter hex color">
+  <button id="generate-btn" class="button button--primary">Generate</button>
+  <div id="tints"></div>
+  <div id="shades"></div>
+
+  <script>
+    const colorInput = document.getElementById('color-input');
+    const generateBtn = document.getElementById('generate-btn');
+    const tintsDiv = document.getElementById('tints');
+    const shadesDiv = document.getElementById('shades');
+
+    generateBtn.onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'generate-colors', color: colorInput.value } }, '*');
+    };
+
+    window.onmessage = (event) => {
+      if (event.data.pluginMessage.type === 'color-object') {
+        const colorObject = event.data.pluginMessage.colorObject;
+        tintsDiv.innerHTML = '';
+        shadesDiv.innerHTML = '';
+        for (const tint in colorObject.tints) {
+          const colorBox = document.createElement('div');
+          colorBox.className = 'color-box';
+          colorBox.style.backgroundColor = colorObject.tints[tint];
+          tintsDiv.appendChild(colorBox);
+        }
+        for (const shade in colorObject.shades) {
+          const colorBox = document.createElement('div');
+          colorBox.className = 'color-box';
+          colorBox.style.backgroundColor = colorObject.shades[shade];
+          shadesDiv.appendChild(colorBox);
+        }
+      } else if (event.data.pluginMessage.type === 'error') {
+        alert(event.data.pluginMessage.message);
+      }
+    };
+  </script>
